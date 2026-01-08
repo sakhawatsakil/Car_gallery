@@ -3,148 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoFlix | Search & Watch</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>AutoFlix | Cinematic Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* --- CORE STYLES --- */
+        /* --- 1. CORE VARIABLES --- */
         :root {
-            --bg-color: #141414;
-            --card-bg: #1f1f1f;
+            --bg-deep: #0a0a0a;
+            --bg-card: #141414;
             --accent: #e50914;
+            --accent-glow: rgba(229, 9, 20, 0.6);
             --text-white: #ffffff;
+            --glass: rgba(20, 20, 20, 0.8);
+            --ease-out-back: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy transition */
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
         
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-deep);
             color: var(--text-white);
             font-family: 'Montserrat', sans-serif;
             overflow-x: hidden;
         }
 
-        /* --- NAVIGATION --- */
+        /* Smooth Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* --- 2. ANIMATED NAVIGATION --- */
         nav {
-            position: fixed; top: 0; width: 100%; padding: 15px 4%;
+            position: fixed; top: 0; width: 100%; padding: 20px 5%;
             display: flex; justify-content: space-between; align-items: center;
             background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
-            z-index: 1000; transition: 0.3s;
+            z-index: 1000; transition: all 0.5s ease;
         }
-        nav.scrolled { background-color: #141414; }
-        
-        .logo { font-family: 'Bebas Neue', cursive; font-size: 2.2rem; color: var(--accent); letter-spacing: 2px; cursor: pointer; }
-        
+        nav.scrolled { 
+            background: rgba(10, 10, 10, 0.95); 
+            padding: 15px 5%; 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 40px; }
+        .logo { 
+            font-family: 'Bebas Neue', cursive; font-size: 2.5rem; color: var(--accent); 
+            letter-spacing: 2px; cursor: pointer; text-shadow: 0 0 20px var(--accent-glow);
+            transition: transform 0.3s;
+        }
+        .logo:hover { transform: scale(1.05); }
+
+        .menu-links button {
+            background: transparent; border: none; color: #e5e5e5; font-size: 0.9rem; 
+            font-weight: 500; cursor: pointer; position: relative; padding: 5px 0;
+        }
+        /* Underline Animation */
+        .menu-links button::after {
+            content: ''; position: absolute; width: 0; height: 2px; bottom: 0; left: 0;
+            background-color: var(--accent); transition: width 0.3s;
+        }
+        .menu-links button:hover::after { width: 100%; }
+
+        /* --- 3. SEARCH & DROPDOWN --- */
         .nav-right { display: flex; align-items: center; gap: 20px; }
         
-        /* Search Bar Design */
         .search-box {
-            background: rgba(0,0,0,0.5);
-            border: 1px solid #ddd;
-            padding: 8px 15px;
-            border-radius: 20px; /* Pill shape */
-            display: flex; align-items: center;
-            transition: 0.3s;
+            background: rgba(255,255,255,0.1); border: 1px solid transparent;
+            padding: 8px 12px; border-radius: 30px; display: flex; align-items: center;
+            transition: 0.4s var(--ease-out-back);
+        }
+        .search-box:hover, .search-box:focus-within { 
+            background: black; border-color: var(--accent); width: 220px; 
+            box-shadow: 0 0 15px var(--accent-glow);
         }
         .search-box input {
-            background: transparent; border: none; outline: none;
-            color: white; font-family: 'Montserrat'; font-size: 0.9rem;
-            width: 200px;
+            background: transparent; border: none; color: white; width: 0;
+            font-family: 'Montserrat'; transition: 0.4s; opacity: 0;
         }
-        .search-box:focus-within { background: black; border-color: var(--accent); }
+        .search-box:hover input, .search-box:focus-within input { width: 150px; opacity: 1; margin-left: 10px; }
 
-        /* --- HERO SECTION --- */
+        /* Avatar Dropdown */
+        .profile-menu { position: relative; cursor: pointer; }
+        .avatar {
+            width: 35px; height: 35px; border-radius: 4px;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png') center/cover;
+            transition: 0.3s;
+        }
+        .dropdown {
+            position: absolute; top: 50px; right: 0; width: 180px;
+            background: rgba(20,20,20,0.95); border: 1px solid rgba(255,255,255,0.1);
+            display: none; flex-direction: column; padding: 10px 0;
+            backdrop-filter: blur(10px); transform-origin: top right;
+            animation: scaleIn 0.2s ease forwards;
+        }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        .profile-menu:hover .dropdown { display: flex; }
+        .dropdown a {
+            color: #ddd; text-decoration: none; padding: 12px 20px; font-size: 0.9rem;
+            transition: 0.2s; border-left: 3px solid transparent;
+        }
+        .dropdown a:hover { background: rgba(255,255,255,0.05); border-left-color: var(--accent); color: white; padding-left: 25px; }
+
+        /* --- 4. HERO SECTION ANIMATIONS --- */
         .hero {
-            height: 80vh;
+            height: 90vh;
             background: url('https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
-            position: relative; display: flex; align-items: center; padding: 0 4%;
-            transition: opacity 0.5s; /* Fade out effect */
+            position: relative; display: flex; align-items: center; padding: 0 5%;
         }
         .hero::after {
-            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
-            background: linear-gradient(to top, var(--bg-color), transparent);
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 70%;
+            background: linear-gradient(to top, var(--bg-deep), transparent);
         }
-        .hero-content { position: relative; z-index: 2; max-width: 600px; }
-        .hero-title { font-family: 'Bebas Neue'; font-size: 5rem; line-height: 0.9; margin-bottom: 20px; text-transform: uppercase; }
-        .hero-desc { font-size: 1.1rem; margin-bottom: 30px; color: #ddd; text-shadow: 1px 1px 4px rgba(0,0,0,0.8); }
         
-        .btn { padding: 12px 30px; border-radius: 4px; font-weight: bold; cursor: pointer; border: none; transition: transform 0.2s; }
-        .btn-primary { background-color: var(--accent); color: white; display: flex; align-items: center; gap: 10px; }
-        .btn:hover { transform: scale(1.05); }
+        .hero-content { position: relative; z-index: 2; max-width: 700px; }
+        
+        /* Staggered Animations */
+        .hero-tag { opacity: 0; animation: slideUpFade 0.8s ease forwards 0.2s; }
+        .hero-title { 
+            font-family: 'Bebas Neue'; font-size: 6rem; line-height: 0.9; margin-bottom: 20px; 
+            text-transform: uppercase; text-shadow: 2px 2px 20px black;
+            opacity: 0; animation: slideUpFade 0.8s ease forwards 0.4s;
+        }
+        .hero-desc { 
+            font-size: 1.2rem; margin-bottom: 30px; color: #ddd; font-weight: 300; max-width: 500px;
+            opacity: 0; animation: slideUpFade 0.8s ease forwards 0.6s;
+        }
+        .hero-btns { opacity: 0; animation: slideUpFade 0.8s ease forwards 0.8s; }
 
-        /* --- CONTENT ROWS (Standard View) --- */
-        #home-view { transition: opacity 0.5s; }
-        
-        .category-section { padding: 20px 0 40px 4%; }
-        .category-title { font-size: 1.4rem; font-weight: 600; margin-bottom: 15px; color: #e5e5e5; }
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn { 
+            padding: 15px 35px; border-radius: 4px; font-weight: 800; text-transform: uppercase; 
+            cursor: pointer; border: none; transition: 0.3s; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 10px;
+            position: relative; overflow: hidden;
+        }
+        .btn-primary { background-color: var(--accent); color: white; box-shadow: 0 0 20px rgba(229, 9, 20, 0.4); }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 30px rgba(229, 9, 20, 0.6); }
+
+        /* --- 5. SCROLL REVEAL ROWS --- */
+        .category-section { 
+            padding: 20px 0 50px 5%; position: relative; z-index: 5; 
+            opacity: 0; transform: translateY(50px); transition: all 1s ease;
+        }
+        .category-section.visible { opacity: 1; transform: translateY(0); }
+
+        .category-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 20px; color: #e5e5e5; display: flex; align-items: center; gap: 10px; }
         
         .row-container {
-            display: flex; overflow-x: auto; gap: 10px; padding-right: 4%; padding-bottom: 40px;
+            display: flex; overflow-x: auto; gap: 15px; padding: 20px 5% 60px 0;
             scroll-behavior: smooth; scrollbar-width: none;
         }
-        .row-container::-webkit-scrollbar { display: none; }
 
-        /* --- CAR CARDS --- */
+        /* --- 6. PREMIUM CARDS WITH SHIMMER --- */
         .car-card {
-            min-width: 280px; height: 160px; background-color: var(--card-bg);
-            border-radius: 4px; position: relative; transition: 0.3s; cursor: pointer; flex-shrink: 0;
-            overflow: hidden;
+            min-width: 290px; height: 165px; background-color: var(--bg-card);
+            border-radius: 6px; position: relative; transition: 0.5s var(--ease-out-back);
+            cursor: pointer; flex-shrink: 0; overflow: hidden; 
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .car-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .car-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: 0.5s; }
         
-        /* HOVER EFFECTS */
-        .car-card:hover { transform: scale(1.2); z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.8); }
-        .car-card:hover .card-info { opacity: 1; }
-        
+        /* Hover Effects */
+        .car-card:hover { 
+            transform: scale(1.15); z-index: 100; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8); 
+            border-color: var(--accent);
+        }
+        .car-card:hover img { opacity: 1; filter: contrast(1.1); }
+
+        /* Shimmer Effect (Light reflection) */
+        .car-card::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-25deg); transition: 0.5s; pointer-events: none;
+        }
+        .car-card:hover::after { left: 150%; transition: 0.7s ease-in-out; }
+
         .card-info {
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px;
-            background: linear-gradient(to top, black, transparent);
-            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px;
+            background: linear-gradient(to top, black, transparent); opacity: 0; 
+            transform: translateY(10px); transition: 0.4s;
         }
-        
-        .play-icon {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 2rem; color: white; opacity: 0; transition: 0.3s; text-shadow: 0 0 10px black;
-        }
-        .car-card:hover .play-icon { opacity: 1; }
-        .card-name { font-size: 0.9rem; font-weight: bold; }
+        .car-card:hover .card-info { opacity: 1; transform: translateY(0); }
+        .card-name { font-size: 1rem; font-weight: bold; color: white; text-transform: uppercase; }
 
-        /* --- SEARCH RESULTS VIEW (Hidden by Default) --- */
-        #search-view {
-            display: none; /* Hidden initially */
-            padding: 100px 4% 50px;
-        }
-        .search-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        /* When showing search results, cards don't need to scale as much to avoid overlap */
-        .search-grid .car-card:hover { transform: scale(1.05); z-index: 1; }
-
-        /* --- VIDEO MODAL --- */
-        .video-modal {
+        /* --- 7. MODALS (BOUNCY ENTRANCE) --- */
+        .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 9999;
-            display: none; justify-content: center; align-items: center; flex-direction: column;
-            opacity: 0; transition: opacity 0.5s ease;
+            background: rgba(0,0,0,0.9); z-index: 9999;
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: 0.3s; backdrop-filter: blur(8px);
         }
-        .video-modal.active { display: flex; opacity: 1; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        
+        .modal-content {
+            background: #181818; padding: 40px; border-radius: 12px;
+            box-shadow: 0 0 50px rgba(229, 9, 20, 0.2); position: relative;
+            border: 1px solid rgba(255,255,255,0.1);
+            transform: scale(0.7); transition: 0.4s var(--ease-out-back);
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
 
-        .video-container { width: 80%; max-width: 1000px; aspect-ratio: 16/9; background: black; box-shadow: 0 0 30px rgba(229, 9, 20, 0.3); }
+        /* Contact Form Styles */
+        .input-group { margin-bottom: 25px; position: relative; }
+        .input-group input, .input-group textarea {
+            width: 300px; background: #2a2a2a; border: none; padding: 15px;
+            color: white; border-radius: 4px; font-family: 'Montserrat'; transition: 0.3s;
+        }
+        .input-group input:focus, .input-group textarea:focus { background: #333; box-shadow: 0 0 10px rgba(229, 9, 20, 0.3); }
+        .contact-btn { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        .contact-btn:hover { background: white; color: var(--accent); }
+
+        /* Video Modal Specifics */
+        .video-box { width: 80vw; max-width: 1000px; aspect-ratio: 16/9; background: black; }
         iframe { width: 100%; height: 100%; border: none; }
-        .close-btn { position: absolute; top: 30px; right: 40px; font-size: 3rem; color: white; cursor: pointer; background: none; border: none; }
-        .close-btn:hover { color: var(--accent); }
+        .close-btn { 
+            position: absolute; top: -40px; right: 0; font-size: 2.5rem; color: white; 
+            cursor: pointer; background: none; border: none; transition: 0.3s;
+        }
+        .close-btn:hover { color: var(--accent); transform: rotate(90deg); }
+
+        /* Search Results */
+        #search-view { display: none; padding: 120px 5% 50px; min-height: 100vh; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .search-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
 
     </style>
 </head>
 <body>
 
     <nav id="navbar">
-        <div class="logo" onclick="clearSearch()">AUTOFLIX</div>
+        <div class="nav-left">
+            <div class="logo" onclick="clearSearch()">AUTOFLIX</div>
+            <div class="menu-links">
+                <button onclick="clearSearch()">Home</button>
+                <button onclick="scrollToSection('row-trending')">Trending</button>
+                <button onclick="scrollToSection('row-classic')">Classics</button>
+            </div>
+        </div>
+
         <div class="nav-right">
             <div class="search-box">
-                <span style="font-size: 1.2rem; margin-right: 10px;">🔍</span>
-                <input type="text" id="searchInput" placeholder="Search cars..." onkeyup="handleSearch()">
+                <span style="font-size: 1.2rem;">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search models..." onkeyup="handleSearch()">
+            </div>
+            <div class="profile-menu">
+                <div class="avatar"></div>
+                <div class="dropdown">
+                    <a href="#" onclick="clearSearch()">Home</a>
+                    <a href="#" onclick="openContact()">Contact Me</a>
+                    <a href="https://github.com" target="_blank">GitHub</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -152,9 +265,13 @@
     <div id="home-view">
         <header class="hero">
             <div class="hero-content">
+                <div class="hero-tag" style="color:var(--accent); font-weight:bold; letter-spacing:3px; margin-bottom:10px;">CINEMATIC PREMIERE</div>
                 <h1 class="hero-title">Porsche 911<br>GT3 RS</h1>
-                <p class="hero-desc">Experience the pinnacle of motorsport performance.</p>
-                <button class="btn btn-primary" onclick="openVideo('Jj7pDNDuo9o')">▶ Play Trailer</button>
+                <p class="hero-desc">Experience the pinnacle of motorsport performance. A naturally aspirated engine, lightweight construction, and extreme aerodynamics.</p>
+                <div class="hero-btns">
+                    <button class="btn btn-primary" onclick="openVideo('Jj7pDNDuo9o')">▶ Play Trailer</button>
+                    <button class="btn" style="background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2);">ℹ More Info</button>
+                </div>
             </div>
         </header>
 
@@ -176,50 +293,57 @@
 
     <div id="search-view">
         <h2 class="category-title">Search Results</h2>
-        <div class="search-grid" id="search-grid">
-            </div>
+        <div class="search-grid" id="search-grid"></div>
     </div>
 
-    <div class="video-modal" id="videoModal">
-        <button class="close-btn" onclick="closeVideo()">&times;</button>
-        <div class="video-container">
+    <div class="modal-overlay" id="contactModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeContact()" style="top:10px; right:15px; font-size:2rem;">&times;</button>
+            <h2 style="color:var(--accent); margin-bottom:20px; font-family:'Bebas Neue'; font-size:2rem;">Get in Touch</h2>
+            <form onsubmit="event.preventDefault(); alert('Message sent!'); closeContact();">
+                <div class="input-group"><input type="text" placeholder="Your Name" required></div>
+                <div class="input-group"><input type="email" placeholder="Your Email" required></div>
+                <div class="input-group"><textarea placeholder="Your Message" rows="3"></textarea></div>
+                <button type="submit" class="contact-btn">SEND MESSAGE</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="videoModal">
+        <div class="modal-content video-box" style="padding:0; overflow:hidden;">
+            <button class="close-btn" onclick="closeVideo()">&times;</button>
             <iframe id="videoPlayer" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         </div>
     </div>
 
     <script>
-        // --- DATA STORE ---
+        // --- DATA ---
         const carDatabase = {
             trending: [
-                { name: "Ferrari SF90", img: "https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=500", hp: "986 HP", vid: "P32hB4_F21w" },
-                { name: "Lamborghini Huracan", img: "https://images.unsplash.com/photo-1566473965997-3de9c817e938?w=500", hp: "630 HP", vid: "e-B6lT3g_Z8" },
-                { name: "McLaren 720S", img: "https://images.unsplash.com/photo-1621135802920-133df287f89c?w=500", hp: "710 HP", vid: "3caO8p4-b6w" },
-                { name: "Bugatti Chiron", img: "https://images.unsplash.com/photo-1627454819213-f77e6826e79b?w=500", hp: "1500 HP", vid: "PkkV1vLHUvQ" },
-                { name: "BMW M4 Competition", img: "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=500", hp: "503 HP", vid: "7k7bg2RDATk" },
+                { name: "Ferrari SF90", img: "https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=500", vid: "P32hB4_F21w" },
+                { name: "Lamborghini Huracan", img: "https://images.unsplash.com/photo-1566473965997-3de9c817e938?w=500", vid: "e-B6lT3g_Z8" },
+                { name: "McLaren 720S", img: "https://images.unsplash.com/photo-1621135802920-133df287f89c?w=500", vid: "3caO8p4-b6w" },
+                { name: "Bugatti Chiron", img: "https://images.unsplash.com/photo-1627454819213-f77e6826e79b?w=500", vid: "PkkV1vLHUvQ" },
+                { name: "BMW M4 Competition", img: "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=500", vid: "7k7bg2RDATk" },
             ],
             electric: [
-                { name: "Tesla Model S Plaid", img: "https://images.unsplash.com/photo-1617704548623-340376564e68?w=500", hp: "1020 HP", vid: "04CdbW218Ts" },
-                { name: "Porsche Taycan", img: "https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=500", hp: "750 HP", vid: "Z9eA0x0J0eE" },
-                { name: "Rimac Nevera", img: "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=500", hp: "1914 HP", vid: "m5aN5Zz0-Ts" },
-                { name: "Lucid Air", img: "https://images.unsplash.com/photo-1642431626019-20d2d99d3326?w=500", hp: "1111 HP", vid: "I2Z_g-vj-m8" }
+                { name: "Tesla Model S Plaid", img: "https://images.unsplash.com/photo-1617704548623-340376564e68?w=500", vid: "04CdbW218Ts" },
+                { name: "Porsche Taycan", img: "https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=500", vid: "Z9eA0x0J0eE" },
+                { name: "Rimac Nevera", img: "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=500", vid: "m5aN5Zz0-Ts" },
             ],
             classic: [
-                { name: "Ford Mustang 1967", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500", hp: "355 HP", vid: "3a6e3-2r1c" },
-                { name: "Ferrari F40", img: "https://images.unsplash.com/photo-1583121274602-3e2820c698d9?w=500", hp: "471 HP", vid: "R3ng6-2s1c" }
+                { name: "Ford Mustang 1967", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500", vid: "3a6e3-2r1c" },
+                { name: "Ferrari F40", img: "https://images.unsplash.com/photo-1583121274602-3e2820c698d9?w=500", vid: "R3ng6-2s1c" }
             ]
         };
 
-        // --- RENDER FUNCTIONS ---
+        // --- RENDER ---
         function createCard(car) {
             return `
                 <div class="car-card" onclick="openVideo('${car.vid}')">
                     <img src="${car.img}" alt="${car.name}">
-                    <div class="play-icon">▶</div>
                     <div class="card-info">
                         <div class="card-name">${car.name}</div>
-                        <div class="card-stats">
-                            <span style="border:1px solid #666; padding:2px 4px;">${car.hp}</span>
-                        </div>
                     </div>
                 </div>
             `;
@@ -227,71 +351,70 @@
 
         function populateRow(elementId, dataArray) {
             const container = document.getElementById(elementId);
-            const fullData = [...dataArray, ...dataArray]; // Duplicate to make scroll nicer
+            const fullData = [...dataArray, ...dataArray]; 
             container.innerHTML = fullData.map(car => createCard(car)).join('');
         }
 
-        // Initialize Rows
         populateRow('row-trending', carDatabase.trending);
         populateRow('row-electric', carDatabase.electric);
         populateRow('row-classic', carDatabase.classic);
 
+        // --- INTERACTION ---
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
 
-        // --- SEARCH LOGIC ---
-        // 1. Flatten all data into one array for easier searching
+        // --- SEARCH ---
         const allCars = [...carDatabase.trending, ...carDatabase.electric, ...carDatabase.classic];
-
         function handleSearch() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            const homeView = document.getElementById('home-view');
-            const searchView = document.getElementById('search-view');
-            const searchGrid = document.getElementById('search-grid');
-
             if (query.length > 0) {
-                // HIDE Home, SHOW Search
-                homeView.style.display = 'none';
-                searchView.style.display = 'block';
-
-                // Filter Data
+                document.getElementById('home-view').style.display = 'none';
+                document.getElementById('search-view').style.display = 'block';
                 const results = allCars.filter(car => car.name.toLowerCase().includes(query));
-
-                // Render Results
-                if (results.length > 0) {
-                    searchGrid.innerHTML = results.map(car => createCard(car)).join('');
-                } else {
-                    searchGrid.innerHTML = '<p style="color:#666; font-size:1.2rem;">No cars found matching that name.</p>';
-                }
+                document.getElementById('search-grid').innerHTML = results.map(car => createCard(car)).join('');
             } else {
-                // RESET (Show Home)
                 clearSearch();
             }
         }
-
         function clearSearch() {
             document.getElementById('searchInput').value = '';
             document.getElementById('home-view').style.display = 'block';
             document.getElementById('search-view').style.display = 'none';
         }
 
-
-        // --- VIDEO MODAL LOGIC ---
-        const modal = document.getElementById('videoModal');
+        // --- MODALS ---
+        const vidModal = document.getElementById('videoModal');
+        const contactModal = document.getElementById('contactModal');
         const player = document.getElementById('videoPlayer');
 
         function openVideo(videoId) {
-            modal.classList.add('active');
+            vidModal.classList.add('active');
             player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&rel=0`;
         }
+        function closeVideo() { vidModal.classList.remove('active'); player.src = ""; }
+        
+        function openContact() { contactModal.classList.add('active'); }
+        function closeContact() { contactModal.classList.remove('active'); }
 
-        function closeVideo() {
-            modal.classList.remove('active');
-            player.src = "";
-        }
-        modal.addEventListener('click', (e) => { if (e.target === modal) closeVideo(); });
+        vidModal.addEventListener('click', (e) => { if (e.target === vidModal) closeVideo(); });
+        contactModal.addEventListener('click', (e) => { if (e.target === contactModal) closeContact(); });
 
-        // Navbar Scroll
+        // --- SCROLL ANIMATION (OBSERVER) ---
+        const nav = document.getElementById('navbar');
+        const sections = document.querySelectorAll('.category-section');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        sections.forEach(section => observer.observe(section));
+
         window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navbar');
             nav.classList.toggle('scrolled', window.scrollY > 50);
         });
     </script>
